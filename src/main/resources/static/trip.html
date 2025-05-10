@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Trip</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h2>Book a Trip</h2>
+<form id="tripForm">
+    <input type="text" id="fromLocation" placeholder="From" required><br>
+    <input type="text" id="toLocation" placeholder="To" required><br>
+    <select id="category">
+        <option value="Sedan">Sedan</option>
+        <option value="SUV">SUV</option>
+    </select><br>
+    <button type="submit">Book</button>
+</form>
+<div id="tripMessage"></div>
+
+<script>
+    const tripForm = document.getElementById("tripForm");
+    tripForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must login first.");
+        window.location.href = "index.html";
+        return;
+      }
+
+      const data = {
+        fromLocation: document.getElementById("fromLocation").value,
+        toLocation: document.getElementById("toLocation").value,
+        category: document.getElementById("category").value
+      };
+
+      const response = await fetch("http://localhost:8080/trip/book", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        document.getElementById("tripMessage").innerText =
+          "Trip booked! Fare: ₹" + result.totalFare;
+      } else {
+        document.getElementById("tripMessage").innerText = "Booking failed.";
+      }
+    });
+</script>
+</body>
+</html>
